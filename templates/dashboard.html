@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% block title %}설치확인서 대시보드{% endblock %}
+
+{% block content %}
+<style>
+  .dashboard-container {
+    max-width: 100%;
+    margin: 0 auto;
+  }
+  .table-responsive {
+    overflow-x: auto;
+  }
+  .table {
+    width: 100%;
+    table-layout: fixed;
+  }
+  .table img {
+    max-width: 100%;
+    height: auto;
+  }
+  .img-thumbnail {
+    width: 80px;
+    height: auto;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .img-thumbnail:hover {
+    transform: scale(1.1);
+  }
+  @media (max-width: 768px) {
+    .img-thumbnail {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+    }
+  }
+</style>
+
+<div class="dashboard-container">
+  <div class="text-center mb-3">
+    <h3 class="mb-1">설치확인서 대시보드</h3>
+    <p class="text-muted small">
+      설치현황 (<strong>{{ success_count }}</strong> / {{ total_count }})
+    </p>
+  </div>
+
+  <form method="GET" id="searchForm" class="row justify-content-center g-4 mb-4">
+    <input type="hidden" name="sort" value="{{ sort }}">
+    <input type="hidden" name="order" value="{{ order }}">
+    <div class="col-md-4 col-sm-6">
+      <input type="text" name="organization" list="orgOptions"
+             class="form-control" placeholder="기관명으로 검색"
+             value="{{ request.args.organization }}">
+      <datalist id="orgOptions">
+        {% for org in org_list %}
+        <option value="{{ org }}">{{ org }}</option>
+        {% endfor %}
+      </datalist>
+    </div>
+    <div class="col-md-2 col-sm-4">
+      <select name="success" class="form-select">
+        <option value="">설치여부</option>
+        <option value="1" {% if request.args.success == '1' %}selected{% endif %}>설치완료</option>
+        <option value="0" {% if request.args.success == '0' %}selected{% endif %}>설치대기</option>
+      </select>
+    </div>
+    <div class="col-md-2 col-sm-4">
+      <button type="submit" class="btn btn-primary w-100">검색</button>
+    </div>
+  </form>
+
+  <div id="recordContainer" class="table-responsive">
+    {% include 'partials/_record_table.html' %}
+  </div>
+</div>
+
+<!-- 이미지 확대용 모달 -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-xl">
+    <div class="modal-content bg-dark">
+      <div class="modal-body p-0">
+        <img id="modalImage" src="" class="img-fluid w-100" alt="확대 이미지">
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function loadRecords(page = 1, sort = null, order = null) {
+  const form = document.getElementById('searchForm');
+  const params = new URLSearchParams(new FormData(form));
+  params.set("page", page);
+  if (sort) params.set("sort", sort);
+  if (order) params.set("order", order);
+
+  fetch("/ajax_dashboard?" + params, {
+    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+  })
+  .then(res => res.text())
+  .then(html => {
+    document.getElementById("recordContainer").innerHTML = html;
+    bindImageModal();
+    setupLazyLoading();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+}
+
+function bindImageModal() {
+  const modal = document.getElementById('imageModal');
+  const modalImg = document.getElementById('modalImage');
+  document.querySelectorAll('.zoomable').forEach(img => {
+    img.onclick = () => modalImg.src = img.dataset.bsImage;
+  });
+  modal.addEventListener('hidden.bs.modal', () => modalImg.src = '');
+}
+
+function setupLazyLoading() {
+  const lazyImgs = document.querySelectorAll('img.lazy');
+  const obs = new IntersectionObserver((entries, o) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const img = e.target;
+        img.src = img.dataset.src;
+        img.classList.remove('lazy');
+        o.unobserve(img);
+      }
+    });
+  });
+  lazyImgs.forEach(img => obs.observe(img));
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.addEventListener('click', e => {
+    if (e.target.classList.contains('ajax-page')) {
+      e.preventDefault();
+      loadRecords(e.target.dataset.page);
+    }
+
+    if (e.target.classList.contains('ajax-sort')) {
+      e.preventDefault();
+      const sort = e.target.dataset.sort;
+      const order = e.target.dataset.order;
+      loadRecords(1, sort, order);
+    }
+  });
+
+  document.getElementById("searchForm").addEventListener("submit", e => {
+    e.preventDefault();
+    loadRecords(1);
+  });
+
+  bindImageModal();
+  setupLazyLoading();
+});
+</script>
+{% endblock %}

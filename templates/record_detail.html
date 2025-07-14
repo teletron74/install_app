@@ -1,0 +1,365 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+  .a4-page {
+    width: 210mm;
+    min-height: 297mm;
+    padding: 20mm;
+    margin: auto;
+    border: 1px solid #ccc;
+    background: white;
+    box-sizing: border-box;
+    position: relative;
+    page-break-after: always;
+  }
+
+  .header, .footer {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer {
+    flex-direction: column;
+    align-items: flex-end;
+    padding-top: 10mm;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 15px;
+  }
+
+  th, td {
+    border: 1px solid #444;
+    padding: 6px;
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  .editable {
+    cursor: text;
+  }
+
+  .editable[contenteditable]:hover {
+    background-color: #ffffdd;
+  }
+
+  .logo-img {
+    height: 40px;
+  }
+
+  .image-clickable,
+  .signature-clickable {
+    cursor: pointer;
+  }
+
+  .page-break {
+    page-break-before: always;
+  }
+
+  .a4-buttons {
+    text-align: right;
+    margin: 20px auto;
+    width: 210mm;
+    max-width: 100%;
+  }
+
+  @media print {
+    .page-break {
+      page-break-before: always;
+    }
+    .btn-print {
+      display: none !important;
+    }
+  }
+
+  @media print {
+   header,
+   nav,
+   footer,
+   .site-header,
+   .site-nav {
+    display: none !important;
+   }
+}
+
+  @media (max-width: 768px) {
+    .a4-page {
+      width: 100%;
+      padding: 15px;
+      border: none;
+    }
+    table {
+      font-size: 12px;
+      table-layout: fixed;
+      word-wrap: break-word;
+    }
+    th, td {
+      word-break: break-word;
+    }
+    .logo-img {
+      max-width: 100px;
+    }
+    .a4-buttons {
+      text-align: center;
+    }
+  }
+
+  #signpad {
+    width: 100%;
+    max-width: 400px;
+    border: 1px solid #ccc;
+    touch-action: none;
+  }
+
+  .signature-modal-content {
+    background: #fff;
+    padding: 1rem;
+    max-width: 95vw;
+    width: auto;
+  }
+
+  .section-number {
+    font-weight: bold;
+    background-color: #f1f1f1;
+    text-align: left;
+    padding-left: 8px;
+  }
+
+  .doc-title {
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+    margin: 20px 0 10px;
+  }
+</style>
+
+<!-- PAGE 1 -->
+<div class="a4-page">
+  <div class="header mb-3">
+    <img src="{{ url_for('static', filename='logo/logo_customer.png') }}" class="logo-img" alt="고객사 로고">
+    <div style="text-align:right">
+      <div><strong>우정사업 기반망 서비스 사업자 선정</strong></div>
+      <div class="text-end">5G 고도화사업</div>
+    </div>
+  </div>
+
+  <div class="doc-title">설치확인서</div>
+
+  <div class="fw-bold mb-2">기관명:
+    <span class="editable" contenteditable="true" data-field="organization">{{ record.organization }}</span>
+  </div>
+
+  <table>
+    <thead><tr><th colspan="4" class="section-number">1. 설치자/요청자 정보</th></tr></thead>
+    <tbody>
+      <tr><th>공급자</th><td class="editable" contenteditable="true" data-field="provider">{{ record.provider }}</td><th>부서</th><td class="editable" contenteditable="true" data-field="department">{{ record.department }}</td></tr>
+      <tr><th>설치업체</th><td class="editable" contenteditable="true" data-field="installer_company">{{ record.installer_company }}</td><th>설치자</th><td class="editable" contenteditable="true" data-field="installer_name">{{ record.installer_name }}</td></tr>
+      <tr><th>요청자</th><td class="editable" contenteditable="true" data-field="requester">{{ record.requester }}</td><th>담당자</th><td class="editable" contenteditable="true" data-field="officer">{{ record.officer }}</td></tr>
+    </tbody>
+  </table>
+
+  <table>
+    <tr><td colspan="4" class="section-number">2. 인수/설치 장비 목록</td></tr>
+    <tr class="table-secondary"><th>No.</th><th>장비명</th><th>수량</th><th>일련번호</th></tr>
+    <tr><td>1</td><td>AXGATE-40D</td><td>1</td><td class="editable" contenteditable="true" data-field="axgateSerialNumber">{{ record.axgateSerialNumber }}</td></tr>
+    <tr><td>2</td><td>IPR-5000W</td><td>1</td><td class="editable" contenteditable="true" data-field="iprSerialNumber">{{ record.iprSerialNumber }}</td></tr>
+  </table>
+
+  <table>
+    <thead><tr><th colspan="4" class="section-number">3. 설치 정보</th></tr></thead>
+    <tbody>
+      <tr><th>설치일자</th><td class="editable" contenteditable="true" data-field="date">{{ record.date }}</td><th>설치 위치</th><td class="editable" contenteditable="true" data-field="location_text">{{ record.location_text }}</td></tr>
+      <tr><th>위도</th><td class="editable" contenteditable="true" data-field="latitude">{{ record.latitude }}</td><th>경도</th><td class="editable" contenteditable="true" data-field="longitude">{{ record.longitude }}</td></tr>
+    </tbody>
+  </table>
+
+  <table>
+    <tr><td colspan="3" class="section-number">4. VPN 체크리스트</td></tr>
+    <tr class="table-secondary"><th>No.</th><th>항목</th><th>확인</th></tr>
+    <tr><td>1</td><td>VPN 전원 LED 점등 여부</td><td>예(O) / 아니오( )</td></tr>
+    <tr><td>2</td><td>VPN 포트 LED 점등 여부</td><td>예(O) / 아니오( )</td></tr>
+    <tr><td>3</td><td>게이트웨이 상태 정상 여부</td><td>예(O) / 아니오( )</td></tr>
+    <tr><td>4</td><td>터널 상태 정상 여부</td><td>예(O) / 아니오( )</td></tr>
+    <tr><td>5</td><td>5G 전용망 통신 정상 여부</td><td>예(O) / 아니오( )</td></tr>
+    <tr><td>6</td><td>5G 속도 양호 여부</td><td>예(O) / 아니오( )</td></tr>
+  </table>
+
+  <table>
+    <tr><td class="section-number">5. 설치 사유</td></tr>
+    <tr><td class="editable" contenteditable="true" data-field="installReason" style="text-align:left;">{{ record.install_reason }}</td></tr>
+  </table>
+
+  <table>
+  <thead>
+    <tr><th colspan="2" class="section-number">6. 서명</th></tr>
+    <tr>
+      <th>설치자: {{ record.installer_name }}</th>
+      <th>확인자: {{ record.officer }}</th>
+    </tr>
+  </thead>
+  
+  <tbody>
+    <tr>
+      <td style="text-align:center;">
+        {% if record.installer_signature_path %}
+          <img src="{{ url_for('static', filename=record.installer_signature_path) }}" class="signature-clickable" data-field="installer_signature" style="max-height:100px;" alt="설치자 서명">
+        {% else %}
+          <button type="button" class="btn btn-outline-primary signature-btn" data-field="installer_signature">(인)</button>
+        {% endif %}
+      </td>
+      <td style="text-align:center;">
+        {% if record.confirmer_signature_path %}
+          <img src="{{ url_for('static', filename=record.confirmer_signature_path) }}" class="signature-clickable" data-field="confirmer_signature" style="max-height:100px;" alt="확인자 서명">
+        {% else %}
+          <button type="button" class="btn btn-outline-primary signature-btn" data-field="confirmer_signature">(인)</button>
+        {% endif %}
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+  <div class="footer">
+    <div class="page-footer w-100 text-center">- 1 -</div>
+    <div class="text-end">
+      <img src="{{ url_for('static', filename='logo/logo_provider.png') }}" class="logo-img" alt="사업자 로고">
+    </div>
+  </div>
+</div>
+
+<!-- PAGE BREAK -->
+<div class="page-break"></div>
+
+<!-- PAGE 2 -->
+<div class="a4-page">
+  <div class="header mb-3">
+    <img src="{{ url_for('static', filename='logo/logo_customer.png') }}" class="logo-img" alt="고객사 로고">
+    <div style="text-align:right">
+      <div><strong>우정사업 기반망 서비스 사업자 선정</strong></div>
+      <div class="text-end">5G 고도화사업</div>
+    </div>
+  </div>
+
+  <div class="doc-title">설치 사진 첨부</div>
+
+  <table>
+    <thead><tr><th>설치 전</th><th>설치 후</th></tr></thead>
+    <tbody><tr>
+      <td>
+        {% if record.before_image_path %}
+          <img src="{{ url_for('static', filename=record.before_image_path) }}" class="image-clickable" data-field="before_image" style="max-height:200px; max-width:100%;" alt="설치 전">
+        {% else %}
+          <span class="text-muted image-clickable" data-field="before_image" style="display:inline-block; max-height:200px; max-width:100%; text-align:center; cursor:pointer;">이미지 없음 (클릭하여 업로드)</span>
+        {% endif %}
+      </td>
+      <td>
+        {% if record.after_image_path %}
+          <img src="{{ url_for('static', filename=record.after_image_path) }}" class="image-clickable" data-field="after_image" style="max-height:200px; max-width:100%;" alt="설치 후">
+        {% else %}
+          <span class="text-muted image-clickable" data-field="after_image" style="display:inline-block; max-height:200px; max-width:100%; text-align:center; cursor:pointer;">이미지 없음 (클릭하여 업로드)</span>
+        {% endif %}
+      </td>
+    </tr><tr><th>VPN 측정</th><th>라우터 설치</th></tr><tr>
+      <td>
+        {% if record.vpnspeed_image_path %}
+          <img src="{{ url_for('static', filename=record.vpnspeed_image_path) }}" class="image-clickable" data-field="vpnspeed_image" style="max-height:200px; max-width:100%;" alt="VPN 측정">
+        {% else %}
+          <span class="text-muted image-clickable" data-field="vpnspeed_image" style="display:inline-block; max-height:200px; max-width:100%; text-align:center; cursor:pointer;">이미지 없음 (클릭하여 업로드)</span>
+        {% endif %}
+      </td>
+      <td>
+        {% if record.router_image_path %}
+          <img src="{{ url_for('static', filename=record.router_image_path) }}" class="image-clickable" data-field="router_image" style="max-height:200px; max-width:100%;" alt="라우터 설치">
+        {% else %}
+          <span class="text-muted image-clickable" data-field="router_image" style="display:inline-block; max-height:200px; max-width:100%; text-align:center; cursor:pointer;">이미지 없음 (클릭하여 업로드)</span>
+        {% endif %}
+      </td>
+    </tr></tbody>
+  </table>
+
+  <div class="footer">
+    <div class="page-footer w-100 text-center">- 2 -</div>
+    <div class="text-end">
+      <img src="{{ url_for('static', filename='logo/logo_provider.png') }}" class="logo-img" alt="사업자 로고">
+    </div>
+  </div>
+</div>
+
+<!-- ✅ Buttons OUTSIDE of A4 pages -->
+<div class="a4-buttons btn-print">
+  <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">목록보기</a>
+  <button onclick="window.print()" class="btn btn-primary">PDF 저장</button>
+</div>
+
+<script>
+  // 텍스트 저장
+  document.querySelectorAll('.editable').forEach(cell => {
+    cell.addEventListener('blur', () => {
+      fetch('/update_field', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({
+          field: cell.dataset.field,
+          value: cell.innerText.trim()
+        })
+      });
+    });
+  });
+
+  // 이미지 업로드
+  document.querySelectorAll('.image-clickable').forEach(img => {
+    img.addEventListener('click', () => {
+      const field = img.dataset.field;
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.onchange = () => {
+        const form = new FormData();
+        form.append('field', field);
+        form.append('image', input.files[0]);
+        fetch('/upload_image', { method: 'POST', body: form }).then(() => location.reload());
+      };
+      input.click();
+    });
+  });
+
+  // 서명
+  document.querySelectorAll('.signature-btn, .signature-clickable').forEach(el => {
+    el.addEventListener('click', () => {
+      const field = el.dataset.field;
+      const modal = document.createElement('div');
+      modal.style = `position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.6);display:flex;justify-content:center;align-items:center;z-index:9999;`;
+      modal.innerHTML = `<div class="signature-modal-content"><canvas id="signpad" width="400" height="150"></canvas><br><button id="saveSign" class="btn btn-sm btn-primary mt-2">저장</button><button id="cancelSign" class="btn btn-sm btn-secondary mt-2">취소</button></div>`;
+      document.body.appendChild(modal);
+
+      const canvas = modal.querySelector('#signpad');
+      const ctx = canvas.getContext('2d');
+      ctx.lineWidth = 2;
+      let drawing = false;
+      const pos = e => {
+        const r = canvas.getBoundingClientRect();
+        const touch = e.touches ? e.touches[0] : e;
+        return { x: touch.clientX - r.left, y: touch.clientY - r.top };
+      };
+      const start = e => { drawing = true; const p = pos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); e.preventDefault(); };
+      const move = e => { if (!drawing) return; const p = pos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); e.preventDefault(); };
+      const end = () => drawing = false;
+      ['mousedown','touchstart'].forEach(evt => canvas.addEventListener(evt, start));
+      ['mousemove','touchmove'].forEach(evt => canvas.addEventListener(evt, move, { passive: false }));
+      ['mouseup','mouseleave','touchend'].forEach(evt => canvas.addEventListener(evt, end));
+      modal.querySelector('#cancelSign').onclick = () => modal.remove();
+      modal.querySelector('#saveSign').onclick = () => {
+        const dataURL = canvas.toDataURL('image/png');
+        fetch('/upload_signature', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ field, dataURL })
+        }).then(() => location.reload());
+      };
+    });
+  });
+</script>
+{% endblock %}

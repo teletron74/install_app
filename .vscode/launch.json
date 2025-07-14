@@ -1,0 +1,42 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python Debugger: Flask",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "flask",
+            "env": {
+                "FLASK_APP": "main.py",
+                "FLASK_DEBUG": "1"
+            },
+            "args": [
+                "run",
+                "--no-debugger",
+                "--no-reload"
+            ],
+            "jinja": true,
+            "autoStartBrowser": false
+        },
+        {
+            "name": "Python Debugger: Hypercorn Flask App",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/main.py", // main.py 스크립트를 직접 실행
+            "console": "integratedTerminal", // VS Code 터미널에서 Hypercorn 로그를 볼 수 있도록 설정
+            "args": [], // main.py 스크립트 자체에 인수를 전달할 필요 없음
+            "env": {
+                // .env.txt 파일의 환경 변수를 여기에 추가합니다.
+                "FLASK_ENV": "development",
+                "FLASK_DEBUG": "1",
+                "DB_HOST": "localhost",
+                "DB_PORT": "3306",
+                "DB_USER": "install",
+                "DB_PASSWORD": "P@ssw0rd74",
+                "DB_NAME": "installdb"
+            },
+            "jinja": true,
+            "autoStartBrowser": false
+        }
+    ]
+}

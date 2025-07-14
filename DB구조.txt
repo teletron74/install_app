@@ -1,0 +1,54 @@
+-- installdb.installation_records definition
+
+CREATE TABLE `installation_records` (
+  `organization` varchar(255) NOT NULL COMMENT '기관명 (기본 키)',
+  `business_name` varchar(255) NOT NULL DEFAULT 'OOO구축건' COMMENT '사업명',
+  `provider` varchar(255) NOT NULL DEFAULT 'JSP' COMMENT '공급자',
+  `department` varchar(255) NOT NULL DEFAULT 'OOO팀' COMMENT '부서',
+  `installer_company` varchar(255) NOT NULL DEFAULT 'OOO' COMMENT '설치업체',
+  `installer_name` varchar(255) NOT NULL DEFAULT '설치자' COMMENT '설치자',
+  `requester` varchar(255) NOT NULL DEFAULT 'OOO고객사' COMMENT '요청자',
+  `officer` varchar(255) NOT NULL DEFAULT '김철수' COMMENT '담당자',
+  `install_reason` varchar(255) NOT NULL DEFAULT '담당자' COMMENT '설치사유',
+  `date` varchar(255) NOT NULL DEFAULT '2024.07.08' COMMENT '설치일자',
+  `before_image_path` text DEFAULT NULL COMMENT '설치 전 이미지 파일 경로',
+  `vpnspeed_image_path` text DEFAULT NULL COMMENT 'VPN 속도 측정 이미지 파일 경로',
+  `router_image_path` text DEFAULT NULL COMMENT '라우터 설치 이미지 파일 경로',
+  `after_image_path` text DEFAULT NULL COMMENT '설치 후 이미지 파일 경로',
+  `location_text` varchar(500) DEFAULT NULL COMMENT '설치 위치 텍스트 (주소 등)',
+  `latitude` varchar(255) DEFAULT NULL COMMENT '위도',
+  `longitude` varchar(255) DEFAULT NULL COMMENT '경도',
+  `installer_signature_path` text DEFAULT NULL COMMENT '설치자 서명 이미지 파일 경로',
+  `confirmer_signature_path` text DEFAULT NULL COMMENT '확인자 서명 이미지 파일 경로',
+  `created_at` timestamp NULL DEFAULT current_timestamp() COMMENT '레코드 생성 시간',
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '레코드 마지막 업데이트 시간',
+  `success` varchar(1) DEFAULT NULL COMMENT '성공 트리거',
+  `installation_pdf_path` varchar(255) DEFAULT NULL COMMENT '생성된 PDF 파일 경로',
+  `logo_customer_path` text DEFAULT NULL COMMENT '고객사 로고 이미지 경로',
+  `logo_provider_path` text DEFAULT NULL COMMENT '공급사 로고 이미지 경로',
+  PRIMARY KEY (`organization`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='설치확인서 앱 데이터 저장 테이블 (기관명 PK)';
+
+
+
+-- installdb.users definition
+
+CREATE TABLE `users` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '사용자 고유 ID',
+  `username` varchar(255) NOT NULL COMMENT '사용자 이름 (로그인 ID)',
+  `password_hash` varchar(255) DEFAULT NULL COMMENT '비밀번호 해시 (일반 로그인용)',
+  `email` varchar(255) DEFAULT NULL COMMENT '이메일 주소',
+  `social_provider` varchar(50) DEFAULT NULL COMMENT '소셜 로그인 제공자 (예: google, kakao, naver)',
+  `social_id` varchar(255) DEFAULT NULL COMMENT '소셜 로그인 고유 ID',
+  `created_at` timestamp NULL DEFAULT current_timestamp() COMMENT '계정 생성 시간',
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '계정 마지막 업데이트 시간',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `username` (`username`),
+  UNIQUE KEY `email` (`email`),
+  UNIQUE KEY `social_id` (`social_id`),
+  CONSTRAINT `chk_login_type` CHECK (`password_hash` is not null and `social_provider` is null and `social_id` is null or `password_hash` is null and `social_provider` is not null and `social_id` is not null)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='사용자 계정 정보 테이블';
+
+
+
+

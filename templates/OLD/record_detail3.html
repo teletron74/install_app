@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>설치 확인서</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { font-family: 'Malgun Gothic', sans-serif; font-size: 14px; }
+    .header, .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header img, .footer img {
+      height: 40px;
+    }
+    .doc-title {
+      text-align: center;
+      font-size: 22px;
+      font-weight: bold;
+      margin: 20px 0;
+    }
+    .section-number {
+      font-weight: bold;
+      text-align: left;
+      background-color: #f1f1f1;
+      padding-left: 10px;
+    }
+    table {
+      width: 90%;
+      margin: 0 auto 20px;
+    }
+    th, td {
+      border: 1px solid #333;
+      padding: 6px;
+      vertical-align: middle;
+    }
+    .image-grid td {
+      width: 50%;
+      text-align: center;
+      padding: 10px;
+    }
+    .image-grid img {
+      max-width: 100%;
+      max-height: 250px;
+      border: 1px solid #ccc;
+    }
+    .caption {
+      font-size: 13px;
+      margin-top: 6px;
+    }
+    .signature-space {
+      height: 60px;
+    }
+    .page-footer {
+      text-align: center;
+      margin-top: 40px;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body class="container mt-3">
+
+  <!-- 머리말 -->
+  <div class="header mb-2">
+    <img src="{{ url_for('static', filename='logo_customer.png') }}" alt="고객사 로고">
+    <div class="text-end small">
+      우정사업 기반망 서비스 사업자 선정<br>
+      설치확인서
+    </div>
+  </div>
+
+  <!-- 문서 제목 -->
+  <div class="doc-title">설치 확인서</div>
+
+  <!-- 1. 설치자/요청자 정보 -->
+  <table class="table table-bordered">
+    <tr><td colspan="4" class="section-number">1. 설치자/요청자 정보</td></tr>
+    <tr>
+      <th>제공자</th><td>{{ record.provider }}</td>
+      <th>소속</th><td>{{ record.department }}</td>
+    </tr>
+    <tr>
+      <th>설치업체</th><td>{{ record.installer_company }}</td>
+      <th>설치담당자</th><td>{{ record.installer_name }}</td>
+    </tr>
+    <tr>
+      <th>요청자</th><td>{{ record.requester }}</td>
+      <th>담당공무원</th><td>{{ record.officer }}</td>
+    </tr>
+  </table>
+
+  <!-- 2. 설치 장비 목록 -->
+  <table class="table table-bordered">
+    <tr><td colspan="4" class="section-number">2. 인수/설치 장비 목록</td></tr>
+    <tr class="table-secondary">
+      <th>No.</th><th>장비명</th><th>수량</th><th>일련번호</th>
+    </tr>
+    <tr>
+      <td>1</td><td>AXGATE-40D</td><td>1</td><td>{{ record.axgateSerialNumber }}</td>
+    </tr>
+    <tr>
+      <td>2</td><td>IPR-5000W</td><td>1</td><td>{{ record.iprSerialNumber }}</td>
+    </tr>
+  </table>
+
+  <!-- 3. VPN 체크리스트 -->
+  <table class="table table-bordered">
+    <tr><td colspan="3" class="section-number">3. VPN 체크리스트</td></tr>
+    <tr class="table-secondary"><th>No.</th><th>항목</th><th>확인</th></tr>
+    <tr><td>1</td><td>VPN 전원 LED는 점등되어 있는가?</td><td>예(O) / 아니오( )</td></tr>
+    <tr><td>2</td><td>VPN 포트 LED 점등 여부</td><td>예(O) / 아니오( )</td></tr>
+    <tr><td>3</td><td>게이트웨이 상태 정상 여부</td><td>예(O) / 아니오( )</td></tr>
+    <tr><td>4</td><td>터널 상태 정상 여부</td><td>예(O) / 아니오( )</td></tr>
+    <tr><td>5</td><td>5G 전용망 통신 정상 여부</td><td>예(O) / 아니오( )</td></tr>
+    <tr><td>6</td><td>5G 속도 양호 여부</td><td>예(O) / 아니오( )</td></tr>
+  </table>
+
+  <!-- 4. 설치 사유 -->
+  <table class="table table-bordered">
+    <tr><td class="section-number">4. 설치 사유</td></tr>
+    <tr><td>{{ record.install_reason }}</td></tr>
+  </table>
+
+  <!-- 5. 설치 확인 -->
+  <table class="table table-bordered">
+    <tr><td colspan="4" class="section-number">5. 설치 확인</td></tr>
+    <tr>
+      <th>설치일자</th><td>{{ record.date }}</td>
+      <th>설치 위치</th><td>{{ record.location_text }}</td>
+    </tr>
+    <tr>
+      <th>설치자 서명</th>
+      <td class="signature-space">
+        {% if record.installer_signature_path %}
+          <img src="{{ url_for('static', filename=record.installer_signature_path) }}" height="60">
+        {% else %} (인) {% endif %}
+      </td>
+      <th>확인자 서명</th>
+      <td class="signature-space">
+        {% if record.confirmer_signature_path %}
+          <img src="{{ url_for('static', filename=record.confirmer_signature_path) }}" height="60">
+        {% else %} (인) {% endif %}
+      </td>
+    </tr>
+  </table>
+
+  <!-- 6. 설치 사진 -->
+  <table class="table table-bordered image-grid">
+    <tr class="section-number">
+      <td colspan="2">6. 설치 사진</td>
+    </tr>
+    <tr class="table-secondary">
+      <td>설치 전</td><td>설치 후</td>
+    </tr>
+    <tr>
+      <td>
+        {% if record.before_image_path %}
+          <img src="{{ url_for('static', filename=record.before_image_path) }}" alt="설치 전">
+          <div class="caption">{{ record.placeName }} / {{ record.date }}</div>
+        {% endif %}
+      </td>
+      <td>
+        {% if record.after_image_path %}
+          <img src="{{ url_for('static', filename=record.after_image_path) }}" alt="설치 후">
+          <div class="caption">{{ record.placeName }} / {{ record.date }}</div>
+        {% endif %}
+      </td>
+    </tr>
+    <tr class="table-secondary">
+      <td>VPN Bandwidth 속도 체크</td><td>5G 라우터 설치 사진</td>
+    </tr>
+    <tr>
+      <td>
+        {% if record.vpnspeed_image_path %}
+          <img src="{{ url_for('static', filename=record.vpnspeed_image_path) }}" alt="VPN">
+          <div class="caption">{{ record.placeName }} / {{ record.date }}</div>
+        {% endif %}
+      </td>
+      <td>
+        {% if record.router_image_path %}
+          <img src="{{ url_for('static', filename=record.router_image_path) }}" alt="라우터">
+          <div class="caption">{{ record.placeName }} / {{ record.date }}</div>
+        {% endif %}
+      </td>
+    </tr>
+  </table>
+
+  <!-- 꼬리말 -->
+  <div class="footer mt-4">
+    <div class="page-footer">- 1 -</div>
+    <img src="{{ url_for('static', filename='logo_lguplus.png') }}" alt="LGU+ 로고">
+  </div>
+
+</body>
+</html>
